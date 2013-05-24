@@ -453,12 +453,12 @@ var parseText = function(msg){
 
 var run = function(msg, number){
 	//var result = parseText("thayer 92 in 20:00");
-	var n;
+	var shortName;
 	async.waterfall([
 		function(c){
 			checkUser(number, function(name){
 				if(name){
-					n = name;
+					shortName = name;
 					c(null);
 				} else {
 					console.log("Unauthorized user");
@@ -470,13 +470,14 @@ var run = function(msg, number){
 			c(null, result)
 		},
 		function(result, c){
-			console.log("Query: " + result);
+			console.log("Query:");
+			console.log(result);
 			nextBus(result.alias, result.route, result.inbound, result.date, function(trips){
 				c(null, trips);
 			});
 		},
 		function(trips, c){
-			sendText(trips, number, name);
+			sendText(trips, number, shortName);
 		}
 	]);
 }
