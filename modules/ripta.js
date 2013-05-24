@@ -388,11 +388,9 @@ var sendText = function(trips, number, name){
 		});
 	}
 	console.log(msg.length);
-	/*
 	nmo.sendTextMessage("14012503444", number, msg, function(){
 		console.log("sent!");
 	});
-	*/
 }
 
 var checkUser = function(number, callback){
