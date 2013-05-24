@@ -360,6 +360,7 @@ var nextBus = function(alias, route, inbound, date, callback){
 					getTripInfo(trip, function(){
 						counter++;
 						if(counter === length){
+							console.log(trips);
 							sendText(trips);
 						}
 					});
@@ -381,14 +382,19 @@ var sendText = function(trips){
 			} else {
 				msg += "Arriving in: " + (trip.time/1000/60).toFixed() + " minutes" + '\n';
 			}
-			msg += "-----\n";
+			msg += "----\n";
 		});
 	}
-	console.log(msg);
-	console.log(msg.length);
+	//console.log(msg);
+	/*
+	nmo.sendTextMessage("14012503444", '14012191115', "testing", function(){
+		console.log("sent!");
+	});
+	*/
 }
 
-var checkUser = function(number){
+var checkUser = function(number, callback){
+	var cb = checkCallback(arguments);
 	async.waterfall([
 		function(c){
 			db.collection('users', function(err, collection){
@@ -400,7 +406,13 @@ var checkUser = function(number){
 				c(err, doc);
 			});
 		}], function(err, doc){
-			return doc.short_name;
+			if(cb){
+				if(doc){
+					cb(doc.short_name);
+				} else {
+					cb(null);
+				}
+			}
 		});
 }
 
@@ -437,10 +449,26 @@ var parseText = function(msg){
 	return result;
 }
 
-var run = function(msg){
+var run = function(msg, number){
 	//var result = parseText("thayer 92 in 20:00");
-	var result = parseText(msg);
-	nextBus(result.alias, result.route, result.inbound, result.date);
+	async.waterfall([
+		function(c){
+			checkUser(number, function(name){
+				if(name){
+					c(null);
+				} else {
+					console.log("Unauthorized user");
+				}
+			});
+		},
+		function(c){
+			var result = parseText(msg);
+			c(null, result)
+		},
+		function(result, c){
+			nextBus(result.alias, result.route, result.inbound, result.date);
+		}
+	]);
 }
 
 exports.run = run;

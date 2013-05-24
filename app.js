@@ -30,11 +30,14 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/sms', function(req, res){
-	if(res.query){
-		var msg = res.query.text;
-		var number = res.query.msisdn;
+	if(req.query.text && req.query.msisdn){
+		var msg = req.query.text;
+		var number = req.query.msisdn;
+		ripta.run(msg, number);
+	} else {
+		console.log("no query");
 	}
-	ripta.run("thayer 92 in 20:00");
+	//ripta.run("thayer 92 in 20:00");
 	res.writeHead(200);
 	res.end();
 });
