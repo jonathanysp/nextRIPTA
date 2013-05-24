@@ -388,6 +388,22 @@ var sendText = function(trips){
 	console.log(msg.length);
 }
 
+var checkUser = function(number){
+	async.waterfall([
+		function(c){
+			db.collection('users', function(err, collection){
+				c(err, collection);
+			});
+		},
+		function(collection, c){
+			collection.findOne({number: number}, function(err, doc){
+				c(err, doc);
+			});
+		}, function(err, doc){
+			return doc.short_name;
+		});
+}
+
 var parseText = function(msg){
 	var split = msg.split(' ');
 	var result = {};
@@ -421,54 +437,25 @@ var parseText = function(msg){
 	return result;
 }
 
+var run = function(msg){
+	//var result = parseText("thayer 92 in 20:00");
+	var result = parseText(msg);
+	nextBus(result.alias, result.route, result.inbound, result.date);
+}
+
+exports.run = run;
+
+/*
 setTimeout(function(){
 	//testLookup(16645);
-	var d = new Date();
-	d.setHours(8);
-	d.setMinutes(0);
-	var result = parseText("thayer 92 in 20:00");
-	nextBus(result.alias, result.route, result.inbound, result.date);
-	
-	/*
+	//var d = new Date();
+	//d.setHours(8);
+	//d.setMinutes(0);
+	//var result = parseText("thayer 92 in 20:00");
+	//nextBus(result.alias, result.route, result.inbound, result.date);
 	nmo.initialize('7daa0795', '92e1ebea', 'http', false);
 	nmo.sendTextMessage("14012503444", '14012191115', "testing", function(){
 		console.log("sent!");
 	});
-	* */
-	
-	//getRouteIds(92, function(names){console.log(names)});
-	/*
-	aliasLookup("thayer", true, function(stopids){
-		console.log(stopids);
-		getServiceIds(new Date(), function(serviceids){
-			console.log(serviceids);
-			getTripIds(stopids, function(tripids){
-				console.log("Trips that stop here: " + tripids.length);
-				checkTrips(tripids, serviceids, function(checkedids){
-					console.log("Trips that stop here today: " + checkedids.length);
-					var d = new Date();
-					d.setHours(23)
-					d.setMinutes(0)
-					d.setSeconds(0);
-					getClosestTrip(checkedids, stopids, new Date(), function(trips){
-						var length = trips.length;
-						var counter = 0;
-						
-						if(trips.length === 0){
-							prettify(trips);
-						}
-						
-						trips.forEach(function(trip){
-							getTripInfo(trip, function(){
-								counter++;
-								if(counter === trips.length){
-									prettify(trips);
-								}
-							});
-						});
-					});
-				});
-			});
-		});
-	});*/
 }, 100);
+*/
