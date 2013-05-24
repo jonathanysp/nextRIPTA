@@ -31,7 +31,7 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/sms', function(req, res){
 	if(req.query.text && req.query.msisdn){
-		var msg = req.query.text;
+		var msg = req.query.text.toLowerCase();
 		var number = req.query.msisdn;
 		ripta.run(msg, number);
 	} else {
