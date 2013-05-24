@@ -34,7 +34,7 @@ app.get('/sms', function(req, res){
 		var msg = res.query.text;
 		var number = res.query.msisdn;
 	}
-	ripta.run("thayer 92 20:00");
+	ripta.run("thayer 92 in 20:00");
 	res.writeHead(200);
 	res.end();
 });
