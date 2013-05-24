@@ -297,7 +297,7 @@ var prettify = function(trips){
 	});
 }
 
-var nextBus = function(alias, route, inbound, date, callback){
+var nextBus = function(alias, route, inbound, date, name, callback){
 	var cb = checkCallback(arguments);
 	var stop_ids;
 	var service_ids;
@@ -360,8 +360,8 @@ var nextBus = function(alias, route, inbound, date, callback){
 					getTripInfo(trip, function(){
 						counter++;
 						if(counter === length){
-							console.log(trips);
-							sendText(trips);
+							//console.log(trips);
+							sendText(trips, name);
 						}
 					});
 				});
@@ -370,8 +370,9 @@ var nextBus = function(alias, route, inbound, date, callback){
 	}
 
 
-var sendText = function(trips){
+var sendText = function(trips, name){
 	var msg = '';
+	msg += "Hi " + name + "!";
 	if(trips.length === 0){
 		msg = "No more busses today :(";
 	} else {
@@ -385,7 +386,7 @@ var sendText = function(trips){
 			msg += "----\n";
 		});
 	}
-	//console.log(msg);
+	console.log(msg);
 	/*
 	nmo.sendTextMessage("14012503444", '14012191115', "testing", function(){
 		console.log("sent!");
@@ -451,10 +452,12 @@ var parseText = function(msg){
 
 var run = function(msg, number){
 	//var result = parseText("thayer 92 in 20:00");
+	var n;
 	async.waterfall([
 		function(c){
 			checkUser(number, function(name){
 				if(name){
+					n = name;
 					c(null);
 				} else {
 					console.log("Unauthorized user");
@@ -466,7 +469,7 @@ var run = function(msg, number){
 			c(null, result)
 		},
 		function(result, c){
-			nextBus(result.alias, result.route, result.inbound, result.date);
+			nextBus(result.alias, result.route, result.inbound, result.date, n);
 		}
 	]);
 }
