@@ -372,7 +372,7 @@ var nextBus = function(alias, route, inbound, date, name, callback){
 
 var sendText = function(trips, name){
 	var msg = '';
-	msg += "Hi " + name + "!";
+	msg += "Hi " + name + "!\n";
 	if(trips.length === 0){
 		msg = "No more busses today :(";
 	} else {
@@ -386,7 +386,7 @@ var sendText = function(trips, name){
 			msg += "----\n";
 		});
 	}
-	console.log(msg);
+	console.log(msg.length);
 	/*
 	nmo.sendTextMessage("14012503444", '14012191115', "testing", function(){
 		console.log("sent!");
