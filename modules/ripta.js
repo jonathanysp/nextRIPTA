@@ -399,7 +399,7 @@ var checkUser = function(number){
 			collection.findOne({number: number}, function(err, doc){
 				c(err, doc);
 			});
-		}, function(err, doc){
+		}], function(err, doc){
 			return doc.short_name;
 		});
 }
