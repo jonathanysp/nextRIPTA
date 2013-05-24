@@ -30,8 +30,10 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/sms', function(req, res){
-	var msg = res.query.text;
-	var number = res.query.msisdn;
+	if(res.query){
+		var msg = res.query.text;
+		var number = res.query.msisdn;
+	}
 	ripta.run("thayer 92");
 	res.writeHead(200);
 	res.end();
