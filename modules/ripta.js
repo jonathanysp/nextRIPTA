@@ -297,7 +297,7 @@ var prettify = function(trips){
 	});
 }
 
-var nextBus = function(alias, route, inbound, date, name, callback){
+var nextBus = function(alias, route, inbound, date, callback){
 	var cb = checkCallback(arguments);
 	var stop_ids;
 	var service_ids;
@@ -306,7 +306,7 @@ var nextBus = function(alias, route, inbound, date, name, callback){
 	async.waterfall([
 		function(c){
 			aliasLookup(alias, inbound, function(stopids){
-				console.log(stopids);
+				//console.log(stopids);
 				stop_ids = stopids;
 				c(null);
 			});
@@ -323,20 +323,20 @@ var nextBus = function(alias, route, inbound, date, name, callback){
 		},
 		function(c){
 			getServiceIds(new Date(), function(serviceids){
-				console.log(serviceids);
+				//console.log(serviceids);
 				service_ids = serviceids;
 				c(null, stop_ids);
 			});
 		},
 		function(stopids, c){
 			getTripIds(stopids, function(tripids){
-				console.log("Trips that stop here: " + tripids.length);
+				//console.log("Trips that stop here: " + tripids.length);
 				c(null, tripids, service_ids);
 			});
 		},
 		function(tripids, serviceids, c){
 			checkTrips(tripids, serviceids, route_ids, function(checkedids){
-				console.log("Trips that stop here today: " + checkedids.length);
+				//console.log("Trips that stop here today: " + checkedids.length);
 				var d;
 				if(date){
 					d = date;
@@ -360,8 +360,9 @@ var nextBus = function(alias, route, inbound, date, name, callback){
 					getTripInfo(trip, function(){
 						counter++;
 						if(counter === length){
-							//console.log(trips);
-							sendText(trips, name);
+							if(cb){
+								cb(trips)
+							}
 						}
 					});
 				});
@@ -370,7 +371,7 @@ var nextBus = function(alias, route, inbound, date, name, callback){
 	}
 
 
-var sendText = function(trips, name){
+var sendText = function(trips, number, name){
 	var msg = '';
 	msg += "Hi " + name + "!\n";
 	if(trips.length === 0){
@@ -388,7 +389,7 @@ var sendText = function(trips, name){
 	}
 	console.log(msg.length);
 	/*
-	nmo.sendTextMessage("14012503444", '14012191115', "testing", function(){
+	nmo.sendTextMessage("14012503444", number, msg, function(){
 		console.log("sent!");
 	});
 	*/
@@ -469,7 +470,13 @@ var run = function(msg, number){
 			c(null, result)
 		},
 		function(result, c){
-			nextBus(result.alias, result.route, result.inbound, result.date, n);
+			console.log("Query: " + result);
+			nextBus(result.alias, result.route, result.inbound, result.date, function(trips){
+				c(null, trips);
+			});
+		},
+		function(trips, c){
+			sendText(trips, number, name);
 		}
 	]);
 }
