@@ -6,3 +6,42 @@ body {
 a {
   color: #00B7FF;
 }
+
+code {
+    margin: 0 2px;
+    padding: 0 5px;
+    border: 1px solid #82a2aa;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+}
+
+h1 {
+    border-bottom: 1px solid #82a2aa;
+    font-size: 2.5em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+sup {
+    font-size: small;
+    vertical-align: top;
+}
+
+pre {
+    margin: 2px;
+    padding: 5px;
+    border: 1px solid #82a2aa;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table,th,td {
+    border: 1px solid #82a2aa;
+    padding: 2px 5px;
+}

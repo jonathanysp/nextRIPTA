@@ -1,5 +1,82 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    h1 
+        | NextRIPTA
+        sup alpha
+        | - 401-250-3444
+    h2 Usage:
+    p
+        | Text 
+        code #{"[Stop Name] <Route> <In/Out>"} 
+        |  to 401-250-3444
+    table
+        thead
+            tr
+                th Parameter
+                th Description
+                th Example
+        tbody
+            tr
+                td Stop Name
+                td Name of bus stop <i>(mandatory)</i>
+                td <i>thayer</i>
+            tr
+                td Route
+                td Route number
+                td <i>92, 42</i>
+            tr
+                td In/Out
+                td Inbound (towards K.Plaza) or outbound trip
+                td <i>in</i> or <i>out</i>            
+
+    h2 Test it out:
+    form#form(action="/get", method="get")
+        input#input(type="text", placeholder="esm 92 out", name="msg", required)
+        button Submit 
+    pre#output(style="display: none")
+
+    h2 Bus Stops:
+    li Thayer Tunnel: <b>thayer</b>
+    li East Side Market: <b>esm</b>
+    li Wampanoag Mall (Stop & Shop): <b>wamp</b>
+
+    h2 Examples:
+    for ex in examples
+        .example
+            h3=ex.text
+            p
+                | Text 
+                code=ex.code
+                |  to 401-250-3444
+            pre(id=ex.code.replace(/ /g, "")) Fetching live results...
+
+    - var a = ""
+    - each ex in examples
+        - var id = ex.code.replace(/ /g, "")
+        - a += "$.ajax({url: \"/get\", data: {msg: \"" + ex.code + "\"}, success: function(data){console.log(data); $(\"#" + id + "\").text(data)}});\n"
+
+    script
+        $("#form").submit(function(){
+            $("#output").text("...");
+            $.get($("#form").attr("action"), $("#form").serialize(), function(data){
+            console.log(data);
+            $("#output").text(data);
+            $("#output").slideDown();
+        });
+        return false;
+        });
+
+    each ex in examples
+        script
+            $.ajax({
+                url: "/get",
+                data: {msg: !{"\"" + ex.code + "\""}},
+                async: true,
+                success: function(data){
+                    $(!{"\"#" + ex.code.replace(/ /g, "") + "\""}).text(data);
+                }
+            });
+
+    h2 Disclaimer
+    p NextRIPTA is not affiliated with the Rhode Island Public Transit Authority or any of its affiliates. For more information, contact jona<a href="http://www.google.com/recaptcha/mailhide/d?k=01YSM4SSamTe9mWN6JIqxniw==&amp;c=aD1K9t2Q8CQ0vpMmq21ndCI3X0FMUOdiePYeQ-nahUE=" onclick="window.open('http://www.google.com/recaptcha/mailhide/d?k\07501YSM4SSamTe9mWN6JIqxniw\75\75\46c\75aD1K9t2Q8CQ0vpMmq21ndCI3X0FMUOdiePYeQ-nahUE\075', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="Reveal this e-mail address">...</a>@gmail.com
