@@ -1,10 +1,11 @@
 var mongodb = require('mongodb');
 var async = require('async');
 var nmo = require('./nexmo.js');
+var constants = require('./constants.js');
 
-var db = new mongodb.Db('RIPTA', new mongodb.Server('localhost', 27017), {w:1});
+var db = new mongodb.Db(constants.db, new mongodb.Server('localhost', 27017), {w:1});
 db.open(function(){console.log(db.state)});
-nmo.initialize('7daa0795', '92e1ebea', 'http', false);
+nmo.initialize(constants.key, constants.secret, 'http', false);
 
 var checkCallback = function(arguments){
 	if(typeof arguments[arguments.length-1] === 'function'){
@@ -25,7 +26,7 @@ var checkCallback = function(arguments){
  
 var aliasLookup = function(alias, inbound, callback){
 	var cb = checkCallback(arguments);
-	db.collection('alias', function(err, collection){
+	db.collection('aliases', function(err, collection){
 		 if(!err) {
 			collection.find({name: alias}).toArray(function(err, docs){
 				var stop_ids = [];
@@ -348,12 +349,11 @@ var nextBus = function(alias, route, inbound, date, callback){
 		},
 		function(checkedids, stopids, date, c){
 			getClosestTrip(checkedids, stopids, date, function(trips){
-				//SEND TEXT REPLY!
-				//console.log(trips);
 				var counter = 0;
 				var length = trips.length;
 				if(trips.length === 0){
-					sendText(trips);
+					cb(trips)
+					//sendText(trips);
 				}
 				
 				trips.forEach(function(trip){
@@ -370,24 +370,29 @@ var nextBus = function(alias, route, inbound, date, callback){
 		}])
 	}
 
-
-var sendText = function(trips, number, name){
-	var msg = '';
-	msg += "Hi " + name + "!\n";
+var createMsg = function(trips, name){
+		var msg = '';
+	if(name){
+		msg += "Hi " + name + "!\n";
+	}
 	if(trips.length === 0){
 		msg = "No more busses today :(";
 	} else {
 		trips.forEach(function(trip){
-			msg += trip.number + " - " + trip.direction + '\n';
+			msg += trip.number + "-" + trip.direction + ': ';
 			if((trip.time/1000/60).toFixed() === 0){
 				msg += "Now arriving\m";
 			} else {
-				msg += "Arriving in: " + (trip.time/1000/60).toFixed() + " minutes" + '\n';
+				msg += (trip.time/1000/60).toFixed() + " minutes" + '\n';
 			}
-			msg += "----\n";
 		});
+		msg = msg.slice(0,-1);
 	}
-	console.log(msg.length);
+	return msg;
+}
+
+
+var sendText = function(msg, number){
 	nmo.sendTextMessage("14012503444", number, msg, function(){
 		console.log("sent!");
 	});
@@ -417,13 +422,14 @@ var checkUser = function(number, callback){
 }
 
 var parseText = function(msg){
+	var msg = msg.trim();
 	var split = msg.split(' ');
 	var result = {};
 	switch(split.length){
 		case 4:
 			var time = split[3].split(":")
 			if(time.length != 2){
-				return;
+				return null;
 			}
 			date = new Date();
 			date.setHours(parseInt(time[0]));
@@ -436,12 +442,12 @@ var parseText = function(msg){
 			} else if(split[2] === 'out'){
 				result.inbound = false;
 			} else {
-				return;
+				return null;
 			}
 		case 2:
 			result.route = parseInt(split[1]);
 			if(isNaN(result.route)){
-				return;
+				return null;
 			}
 		case 1:
 			result.alias = split[0];
@@ -475,12 +481,84 @@ var run = function(msg, number){
 			});
 		},
 		function(trips, c){
-			sendText(trips, number, shortName);
+			var msg = createMsg(trips, shortName);
+			sendText(msg, number);
 		}
 	]);
 }
 
+var checkAlias = function(alias, callback){
+	var cb = checkCallback(arguments);
+	
+	async.waterfall([
+		function(c){
+			db.collection('aliases', function(err, collection){
+				c(err, collection);
+			});
+		},
+		function(collection, c){
+			collection.find({name: alias}).toArray(function(err, docs){
+				if(docs.length === 0){
+					c(err, false);
+				} else {
+					c(err, true);
+				}
+			});
+		},
+		function(bool, c){
+			if(cb){
+				cb(bool);
+			}
+		}
+		]);
+}
+
+var getReq = function(req, res){
+	res.writeHead(200);
+	if(req.query.msg){
+		async.waterfall([
+			function(c){
+				var result = parseText(req.query.msg.toLowerCase());
+				if(!result){
+					c(new Error("Invalid input"));
+				} else {
+					c(null, result);
+				}
+			},
+			function(result, c){
+				checkAlias(result.alias, function(bool){
+					if(bool){
+						c(null, result);
+					} else {
+						c(new Error("Invalid stop name"));
+					}
+				});
+			},
+			function(result, c){
+				console.log(result);
+				nextBus(result.alias, result.route, result.inbound, result.date, function(trips){
+					c(null, trips);
+				});
+			},
+			function(trips, c){
+				var msg = createMsg(trips);
+				res.write(msg);
+				res.end();
+				c(null);
+			}
+		], function(err){
+			if(err){
+				res.write(err.message);
+				res.end();
+			}
+		});
+	} else {
+		res.end();
+	}
+}
+
 exports.run = run;
+exports.getReq = getReq;
 
 /*
 setTimeout(function(){

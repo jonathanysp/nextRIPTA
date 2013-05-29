@@ -41,6 +41,11 @@ app.get('/sms', function(req, res){
 	res.writeHead(200);
 	res.end();
 });
+app.get('/get', function(req, res){
+	ripta.getReq(req, res);
+});
+
+exports.app = app;
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

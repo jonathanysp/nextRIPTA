@@ -1,14 +1,30 @@
-var mongodb = require('mongodb');
+var mongoose = require('mongoose');
 
-var db = new mongodb.Db('RIPTA', new mongodb.Server('localhost', 27017), {w:1});
-db.open(function(){
-	db.collection('users', function(err, collection){
-		var user = {
-			"full_name" : "Simone Kurial", 
-			"short_name" : "Simone",
-			"number" : "16199334334",  }
-		collection.insert(user, function(err){
-			db.close();
-		});
-	});
+mongoose.connect('mongodb://127.0.0.1/RIPTA');
+
+var Schema = mongoose.Schema;
+
+var User = new Schema({
+        full_name: {type: String, required: true, trim: true},
+        short_name: {type: String, required: true, trim: true},
+        number: {type: String, required: true, trim: true}
+});
+
+var user = mongoose.model('user', User);
+
+var newUser = {
+    full_name: "Neel Yalamarthy",
+    short_name: "Neel",
+    number: "19892749864"
+};
+
+var userObj = new user(newUser);
+
+userObj.save(function(err, data){
+    if(err){
+        console.log(err);
+    } else {
+        console.log(data);
+    }
+    mongoose.connection.close();
 });
