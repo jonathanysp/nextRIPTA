@@ -1,10 +1,11 @@
 var mongodb = require('mongodb');
 var async = require('async');
 var nmo = require('./nexmo.js');
+var constants = require('./constants.js');
 
-var db = new mongodb.Db('RIPTA', new mongodb.Server('localhost', 27017), {w:1});
+var db = new mongodb.Db(constants.db, new mongodb.Server('localhost', 27017), {w:1});
 db.open(function(){console.log(db.state)});
-nmo.initialize('7daa0795', '92e1ebea', 'http', false);
+nmo.initialize(constants.key, constants.secret, 'http', false);
 
 var checkCallback = function(arguments){
 	if(typeof arguments[arguments.length-1] === 'function'){
