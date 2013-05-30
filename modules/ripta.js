@@ -465,7 +465,7 @@ var run = function(msg, number){
 					shortName = name;
 					c(null);
 				} else {
-					console.log("Unauthorized user");
+					console.log("Unauthorized user: " + number);
 				}
 			});
 		},
