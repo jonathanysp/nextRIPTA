@@ -475,7 +475,7 @@ var run = function(msg, number){
 			c(null, result)
 		},
 		function(result, c){
-			console.log("Query:");
+			console.log(number + " query:");
 			console.log(result);
 			nextBus(result.alias, result.route, result.inbound, result.date, function(trips){
 				c(null, trips);
