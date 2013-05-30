@@ -16,12 +16,12 @@ var Alias = new Schema({
 var alias = mongoose.model('alias', Alias);
 
 var newAlias = {
-	"name" : "esm",
-	"id" : 1,
-	"in_name" : "PITMAN AT EAST SIDE MARKETPLACE",
-	"out_name" : "PITMAN AT EAST SIDE MARKETPLACE",
-	"in_id" : 16645,
-	"out_id" : 16645,
+	"name" : "thayer",
+	"id" : 0,
+	"in_name" : "BUS TUNNEL FAR SIDE THAYER",
+	"out_name" : "BUS TUNNEL NEAR SIDE THAYER",
+	"in_id" : 17045,
+	"out_id" : 16905,
 };
 
 var aliasObj = new alias(newAlias);
