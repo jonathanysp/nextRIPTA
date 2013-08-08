@@ -1,11 +1,16 @@
 var mongodb = require('mongodb');
 var async = require('async');
 var nmo = require('./nexmo.js');
-var constants = require('./constants.js');
 
-var db = new mongodb.Db(constants.db, new mongodb.Server('localhost', 27017), {w:1});
-db.open(function(){console.log(db.state)});
-nmo.initialize(constants.key, constants.secret, 'http', false);
+var db;
+mongodb.MongoClient.connect("mongodb://" + process.env.DB_USER + ":" +
+	process.env.DB_PASS + "@dharma.mongohq.com:10000/ripta", function(err, dab){
+	if(err) throw err;
+	console.log("connected");
+	db = dab;
+});
+//db.open(function(){console.log(db.state)});
+nmo.initialize(process.env.N_KEY, process.env.N_SECRET, 'http', false);
 
 var checkCallback = function(arguments){
 	if(typeof arguments[arguments.length-1] === 'function'){
@@ -26,7 +31,7 @@ var checkCallback = function(arguments){
  
 var aliasLookup = function(alias, inbound, callback){
 	var cb = checkCallback(arguments);
-	db.collection('aliases', function(err, collection){
+	db.collection('alias', function(err, collection){
 		 if(!err) {
 			collection.find({name: alias}).toArray(function(err, docs){
 				var stop_ids = [];

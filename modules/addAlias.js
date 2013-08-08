@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1/RIPTA');
+mongoose.connect("mongodb://" + process.env.DB_USER + ":" +
+	process.env.DB_PASS + "@dharma.mongohq.com:10000/ripta");
 
 var Schema = mongoose.Schema;
 
@@ -22,6 +23,15 @@ var newAlias = {
 	"out_name" : "BUS TUNNEL NEAR SIDE THAYER",
 	"in_id" : 17045,
 	"out_id" : 16905,
+};
+
+newAlias = {
+	"name" : "esm",
+	"id" : 1,
+	"in_name" : "PITMAN AT EAST SIDE MARKETPLACE",
+	"out_name" : "PITMAN AT EAST SIDE MARKETPLACE",
+	"in_id" : 16645,
+	"out_id" : 16645
 };
 
 var aliasObj = new alias(newAlias);
